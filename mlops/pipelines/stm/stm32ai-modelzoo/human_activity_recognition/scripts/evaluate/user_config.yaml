@@ -1,0 +1,42 @@
+general:
+  project_name: HAR_model
+
+dataset:
+  name: wisdm
+  class_names: [Jogging,Stationary,Stairs,Walking]
+  training_path: /opt/ml/processing/input/datasets/WISDM_ar_v1.1/WISDM_ar_v1.1_raw.txt
+
+pre_processing:
+  segment_len: 24
+  segment_step: 24
+  preprocessing: True
+
+model:
+  model_type: {name : ign}
+  input_shape: [24,3,1]
+  model_path: /opt/ml/processing/input/model/model.tar.gz
+
+quantization:
+  quantize: True
+  evaluate: True
+  quantizer: TFlite_converter
+  quantization_type: PTQ
+  quantization_input_type: float
+  quantization_output_type: float
+  export_dir: quantized_models
+
+stm32ai:
+  version: 8.1.0
+  serie: STM32U5
+  IDE: GCC
+  verbosity: 1
+  path_to_stm32ai: C:/STMicroelectronics/STM32Cube/Repository/Packs/STMicroelectronics/X-CUBE-AI/8.1.0/Utilities/windows/stm32ai.exe
+  optimization: balanced
+  footprints_on_target: B-U585I-IOT02A
+  
+mlflow:
+  uri: ./mlruns
+
+hydra:
+  run:
+    dir: /opt/ml/processing/outputs/build
