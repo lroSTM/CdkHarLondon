@@ -17,16 +17,16 @@
   "context": {
     "config": {
       "envs": {
-        "cicd": { "account": "<Account>", "region": "<Region>" },
-        "ml": { "account": "<Account>", "region": "<Region>" },
-        "iot": [{ "name": "dev", "account": "<Region>", "region": "<Region>" }]
+        "cicd": { "account": "958196000588", "region": "eu-west-2" },
+        "ml": { "account": "958196000588", "region": "eu-west-2" },
+        "iot": [{ "name": "dev", "account": "958196000588", "region": "eu-west-2" }]
       },
       "stUsernameSecret": "STDEVCLOUD_USERNAME_SECRET",
       "stPasswordSecret": "STDEVCLOUD_PASSWORD_SECRET",
       "repo": {
-        "name": "<Owner>/<Repo>",
-        "branch": "<Branch_Name>",
-        "connectionArn": "<Connection_Arn>"
+        "name": "lroSTM/CdkHarLondon",
+        "branch": "main",
+        "connectionArn": "arn:aws:codestar-connections:eu-west-2:958196000588:connection/c4b8de53-4c79-449f-8285-35ff12e5aa80"
       }
     },
     "@aws-cdk/core:bootstrapQualifier": "stmicro",
