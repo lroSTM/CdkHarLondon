@@ -13,7 +13,7 @@ export class PipelineStack extends Stack {
     const config = this.node.tryGetContext('config');
 
     const pipeline = new pipelines.CodePipeline(this, 'Pipeline', {
-      pipelineName: 'StMicroPipeline4',
+      pipelineName: 'StMicroPipeline5',
       synth: new pipelines.ShellStep('SynthStep', {
         input: pipelines.CodePipelineSource.connection(config.repo.name, config.repo.branch, {
           connectionArn: config.repo.connectionArn,
@@ -49,13 +49,13 @@ export class PipelineStack extends Stack {
 export class MlStage extends Stage {
   constructor(scope: Construct, id: string, props?: StageProps) {
     super(scope, id, props);
-    new MlStack(this, 'MlStack');
+    new MlStack(this, 'MlStack5');
   }
 }
 
 export class IotStage extends Stage {
   constructor(scope: Construct, id: string, props?: StageProps) {
     super(scope, id, props);
-    new IotStack(this, 'IotStack');
+    new IotStack(this, 'IotStack5');
   }
 }
