@@ -29,14 +29,14 @@ export class SagmakerPipeline extends Construct {
     const config = this.node.tryGetContext('config');
     const { region } = Stack.of(this);
 
-    const mlOutputBucket = new aws_s3.Bucket(this, 'MlOutput', {
+    const mlOutputBucket = new aws_s3.Bucket(this, 'MlOutput5', {
       versioned: true,
       enforceSSL: true,
       encryption: aws_s3.BucketEncryption.S3_MANAGED,
       blockPublicAccess: aws_s3.BlockPublicAccess.BLOCK_ALL,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
-      serverAccessLogsBucket: new aws_s3.Bucket(this, 'MlOutputAccessLog', {
+      serverAccessLogsBucket: new aws_s3.Bucket(this, 'MlOutputAccessLog5', {
         versioned: true,
         enforceSSL: true,
         encryption: aws_s3.BucketEncryption.S3_MANAGED,
@@ -50,14 +50,14 @@ export class SagmakerPipeline extends Construct {
       path: 'mlops',
     });
 
-    const dataSetsBucket = new aws_s3.Bucket(this, 'DataSetsBucket', {
+    const dataSetsBucket = new aws_s3.Bucket(this, 'DataSetsBucket5', {
       versioned: true,
       enforceSSL: true,
       encryption: aws_s3.BucketEncryption.S3_MANAGED,
       blockPublicAccess: aws_s3.BlockPublicAccess.BLOCK_ALL,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
-      serverAccessLogsBucket: new aws_s3.Bucket(this, 'DataSetsAccessLog', {
+      serverAccessLogsBucket: new aws_s3.Bucket(this, 'DataSetsAccessLog5', {
         versioned: true,
         enforceSSL: true,
         encryption: aws_s3.BucketEncryption.S3_MANAGED,
@@ -107,7 +107,7 @@ export class SagmakerPipeline extends Construct {
       buildSpec: aws_codebuild.BuildSpec.fromAsset('lib/ml/buildspec.yml'),
       logging: {
         cloudWatch: {
-          logGroup: new aws_logs.LogGroup(this, `MlBuildLogGroup`),
+          logGroup: new aws_logs.LogGroup(this, `MlBuildLogGroup5`),
         },
       },
     });
@@ -117,14 +117,14 @@ export class SagmakerPipeline extends Construct {
       aws_iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSageMakerFullAccess')
     );
 
-    new BuildTrigger(this, 'MlBuildTrigger', { buildProject: build, state: mlOpsCode.assetHash });
+    new BuildTrigger(this, 'MlBuildTrigger5', { buildProject: build, state: mlOpsCode.assetHash });
 
     const key = new aws_kms.Key(this, 'KMS', {
       removalPolicy: RemovalPolicy.DESTROY,
       enableKeyRotation: true,
     });
-    const mlBucketSecret = new aws_secretsmanager.Secret(this, 'MlOutputSecret', {
-      secretName: 'MlBucketArn',
+    const mlBucketSecret = new aws_secretsmanager.Secret(this, 'MlOutputSecret5', {
+      secretName: 'MlBucketArn5',
       secretStringValue: SecretValue.unsafePlainText(mlOutputBucket.bucketArn),
       encryptionKey: key,
     });
