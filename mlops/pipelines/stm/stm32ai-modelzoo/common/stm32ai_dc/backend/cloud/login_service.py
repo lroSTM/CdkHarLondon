@@ -16,7 +16,7 @@ import os
 import time
 from pathlib import Path
 
-from stm32ai_dc.errors import LoginFailureException
+from stm32ai_dc.errors import InvalidCredentialsException, LoginFailureException
 
 from .helpers import get_ssl_verify_status, _get_env_proxy
 from .endpoints import get_login_authenticate_ep, get_login_service_ep
@@ -53,7 +53,7 @@ class LoginService:
         if (sso_resp['refresh_token']):
             refresh_route = self.main_route + '/login/refresh'
             s = requests.session()
-            #s.proxies = _get_env_proxy()
+            s.proxies = _get_env_proxy()
             s.verify = get_ssl_verify_status()
             resp = s.post(refresh_route, data={
                 'refresh_token': sso_resp['refresh_token']
@@ -76,14 +76,26 @@ class LoginService:
         return token
 
     def login(self, username, password) -> str:
+        for i in range(5):
+            try:
+                self._login(username, password)
+                return self.auth_token
+            except InvalidCredentialsException as e:
+                raise e
+            except Exception as e:
+                print('Login issue, retry (' + str(i+1) + '/5)')
+                time.sleep(5)
+
+
+    def _login(self, username, password) -> str:
         # Starts a requests sesson
         s = requests.session()
-        #s.proxies = _get_env_proxy()
+        s.proxies = _get_env_proxy()
         s.verify = get_ssl_verify_status()
         s.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv59.0) Gecko/20100101',
         })
-        provider = 'https://idpsso.st.com'
+        provider = 'https://sso.st.com'
         client_id = 'oidc_prod_client_app_stm32ai'
         redirect_uri = 'https://stm32ai-cs.st.com/callback'
 
@@ -131,6 +143,11 @@ class LoginService:
             allow_redirects=False,
         )
 
+        if (resp.status_code == 200):
+            failure_regex = re.search(r'You have provided the wrong password. You have \d+ attempts left after which your account password will expire.', resp.text)
+            if (failure_regex):
+                raise InvalidCredentialsException
+
         redirect = resp.headers['Location']
         is_ready = False
         while is_ready == False:
@@ -163,7 +180,7 @@ class LoginService:
             },
             allow_redirects=False,
             verify=get_ssl_verify_status(),
-            #proxies=_get_env_proxy(),
+            proxies=_get_env_proxy(),
         )
 
         # Response should be 200

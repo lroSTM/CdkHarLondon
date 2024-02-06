@@ -29,7 +29,7 @@
         "connectionArn": "arn:aws:codestar-connections:eu-west-2:958196000588:connection/c4b8de53-4c79-449f-8285-35ff12e5aa80"
       }
     },
-    "@aws-cdk/core:bootstrapQualifier": "stmicro",
+    "@aws-cdk/core:bootstrapQualifier": "stmicro2",
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,
     "@aws-cdk/core:target-partitions": ["aws", "aws-cn"],

@@ -6,7 +6,7 @@ general:
 tf_train_parameters:
   batch_size: 64
   dropout: 0.5
-  training_epochs: 1000
+  training_epochs: 900
   optimizer: adam
   initial_learning: 0.001
   learning_rate_scheduler: ReduceLROnPlateau
@@ -39,7 +39,7 @@ quantization:
 
 stm32ai:
   version: 8.1.0
-  path_to_stm32ai: C:/STMicroelectronics/STM32Cube/Repository/Packs/STMicroelectronics/X-CUBE-AI/8.1.0/Utilities/windows/stm32ai.exe
+  path_to_stm32ai: STM32Cube/Repository/Packs/STMicroelectronics/X-CUBE-AI/8.1.0/Utilities/windows/stm32ai.exe
   optimization: balanced # supported options are : balanced, time, ram
   footprints_on_target: B-U585I-IOT02A
 
