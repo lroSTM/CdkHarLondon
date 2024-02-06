@@ -13,7 +13,7 @@ export class PipelineStack extends Stack {
     const config = this.node.tryGetContext('config');
 
     const pipeline = new pipelines.CodePipeline(this, 'Pipeline', {
-      pipelineName: 'StMicroPipeline2',
+      pipelineName: 'StMicroPipeline4',
       synth: new pipelines.ShellStep('SynthStep', {
         input: pipelines.CodePipelineSource.connection(config.repo.name, config.repo.branch, {
           connectionArn: config.repo.connectionArn,
