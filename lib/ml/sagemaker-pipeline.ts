@@ -29,14 +29,14 @@ export class SagmakerPipeline extends Construct {
     const config = this.node.tryGetContext('config');
     const { region } = Stack.of(this);
 
-    const mlOutputBucket = new aws_s3.Bucket(this, 'MlOutput5', {
+    const mlOutputBucket = new aws_s3.Bucket(this, 'MlOutput6', {
       versioned: true,
       enforceSSL: true,
       encryption: aws_s3.BucketEncryption.S3_MANAGED,
       blockPublicAccess: aws_s3.BlockPublicAccess.BLOCK_ALL,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
-      serverAccessLogsBucket: new aws_s3.Bucket(this, 'MlOutputAccessLog5', {
+      serverAccessLogsBucket: new aws_s3.Bucket(this, 'MlOutputAccessLog6', {
         versioned: true,
         enforceSSL: true,
         encryption: aws_s3.BucketEncryption.S3_MANAGED,
@@ -50,14 +50,14 @@ export class SagmakerPipeline extends Construct {
       path: 'mlops',
     });
 
-    const dataSetsBucket = new aws_s3.Bucket(this, 'DataSetsBucket5', {
+    const dataSetsBucket = new aws_s3.Bucket(this, 'DataSetsBucket6', {
       versioned: true,
       enforceSSL: true,
       encryption: aws_s3.BucketEncryption.S3_MANAGED,
       blockPublicAccess: aws_s3.BlockPublicAccess.BLOCK_ALL,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
-      serverAccessLogsBucket: new aws_s3.Bucket(this, 'DataSetsAccessLog5', {
+      serverAccessLogsBucket: new aws_s3.Bucket(this, 'DataSetsAccessLog6', {
         versioned: true,
         enforceSSL: true,
         encryption: aws_s3.BucketEncryption.S3_MANAGED,
@@ -107,7 +107,7 @@ export class SagmakerPipeline extends Construct {
       buildSpec: aws_codebuild.BuildSpec.fromAsset('lib/ml/buildspec.yml'),
       logging: {
         cloudWatch: {
-          logGroup: new aws_logs.LogGroup(this, `MlBuildLogGroup5`),
+          logGroup: new aws_logs.LogGroup(this, 'MlBuildLogGroup6'),
         },
       },
     });
@@ -123,8 +123,8 @@ export class SagmakerPipeline extends Construct {
       removalPolicy: RemovalPolicy.DESTROY,
       enableKeyRotation: true,
     });
-    const mlBucketSecret = new aws_secretsmanager.Secret(this, 'MlOutputSecret5', {
-      secretName: 'MlBucketArn5',
+    const mlBucketSecret = new aws_secretsmanager.Secret(this, 'MlOutputSecret6', {
+      secretName: 'MlBucketArn6',
       secretStringValue: SecretValue.unsafePlainText(mlOutputBucket.bucketArn),
       encryptionKey: key,
     });

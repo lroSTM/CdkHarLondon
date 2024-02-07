@@ -28,8 +28,8 @@
         "branch": "main",
         "connectionArn": "arn:aws:codestar-connections:eu-west-2:958196000588:connection/48c348fb-8549-4613-aea2-92f6e90e607c"
       }
-    },
-    "@aws-cdk/core:bootstrapQualifier": "stmicro5",
+    }, 
+    "@aws-cdk/core:bootstrapQualifier": "stmicro6",
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,
     "@aws-cdk/core:target-partitions": ["aws", "aws-cn"],

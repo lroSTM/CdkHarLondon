@@ -5,8 +5,8 @@
     "aws-stm32-ml-at-edge-accelerator": "bin/aws-stm32-ml-at-edge-accelerator.js"
   },
   "scripts": {
-    "deploy": "cdk deploy PipelineStack5",
-    "destroy": "cdk destroy PipelineStack5",
+    "deploy": "cdk deploy PipelineStack6",
+    "destroy": "cdk destroy PipelineStack6",
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",

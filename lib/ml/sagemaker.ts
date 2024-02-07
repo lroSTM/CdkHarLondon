@@ -69,7 +69,7 @@ export class Sagmaker extends Construct {
     const sagemakerDomain = new aws_sagemaker.CfnDomain(this, 'SagemakerDomain', {
       authMode: 'IAM',
       defaultUserSettings: { executionRole: sagemakerDomainRole.roleArn },
-      domainName: 'stmicro5',
+      domainName: 'stmicro6',
       vpcId: vpc.vpcId,
       subnetIds: [vpc.publicSubnets[0].subnetId],
     });
