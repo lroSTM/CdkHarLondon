@@ -13,7 +13,7 @@ export class PipelineStack extends Stack {
     const config = this.node.tryGetContext('config');
 
     const pipeline = new pipelines.CodePipeline(this, 'Pipeline', {
-      pipelineName: 'StMicroPipeline6',
+      pipelineName: 'StMicroPipeline_har',
       synth: new pipelines.ShellStep('SynthStep', {
         input: pipelines.CodePipelineSource.connection(config.repo.name, config.repo.branch, {
           connectionArn: config.repo.connectionArn,
@@ -32,12 +32,12 @@ export class PipelineStack extends Stack {
       enableKeyRotation: true,
     });
 
-    const mlStage = new MlStage(this, 'MlStage6', { env: { ...config.envs.ml } });
+    const mlStage = new MlStage(this, 'MlStage_har', { env: { ...config.envs.ml } });
     pipeline.addStage(mlStage);
 
     for (const env of config.envs.iot) {
       const { name, account, region } = env;
-      const iotStage = new IotStage(this, 'IotStage6' + name, { env: { account, region } });
+      const iotStage = new IotStage(this, 'IotStage_har' + name, { env: { account, region } });
       const stage = pipeline.addStage(iotStage);
       if (name === 'prod') {
         stage.addPre(new pipelines.ManualApprovalStep('Approve'));
@@ -49,13 +49,13 @@ export class PipelineStack extends Stack {
 export class MlStage extends Stage {
   constructor(scope: Construct, id: string, props?: StageProps) {
     super(scope, id, props);
-    new MlStack(this, 'MlStack6');
+    new MlStack(this, 'MlStack_har');
   }
 }
 
 export class IotStage extends Stage {
   constructor(scope: Construct, id: string, props?: StageProps) {
     super(scope, id, props);
-    new IotStack(this, 'IotStack6');
+    new IotStack(this, 'IotStack_har');
   }
 }
