@@ -17,19 +17,19 @@
   "context": {
     "config": {
       "envs": {
-        "cicd": { "account": "<Account>", "region": "<Region>" },
-        "ml": { "account": "<Account>", "region": "<Region>" },
-        "iot": [{ "name": "dev", "account": "<Region>", "region": "<Region>" }]
+        "cicd": { "account": "958196000588", "region": "eu-west-3" },
+        "ml": { "account": "958196000588", "region": "eu-west-3" },
+        "iot": [{ "name": "dev", "account": "958196000588", "region": "eu-west-3" }]
       },
       "stUsernameSecret": "STDEVCLOUD_USERNAME_SECRET",
       "stPasswordSecret": "STDEVCLOUD_PASSWORD_SECRET",
       "repo": {
-        "name": "<Owner>/<Repo>",
-        "branch": "<Branch_Name>",
-        "connectionArn": "<Connection_Arn>"
+        "name": "lroSTM/CdkHarLondon",
+        "branch": "val_har",
+        "connectionArn": "arn:aws:codestar-connections:eu-west-3:958196000588:connection/376045c2-d789-4f25-80b6-fda0a307d87a"
       }
     }, 
-    "@aws-cdk/core:bootstrapQualifier": "stmicro_har",
+    "@aws-cdk/core:bootstrapQualifier": "stmicrohar",
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,
     "@aws-cdk/core:target-partitions": ["aws", "aws-cn"],
