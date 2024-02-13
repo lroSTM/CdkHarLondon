@@ -29,7 +29,7 @@
         "connectionArn": "<Connection_Arn>"
       }
     }, 
-    "@aws-cdk/core:bootstrapQualifier": "stmicro_har",
+    "@aws-cdk/core:bootstrapQualifier": "stmicrohar",
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,
     "@aws-cdk/core:target-partitions": ["aws", "aws-cn"],
