@@ -124,7 +124,7 @@ export class SagmakerPipeline extends Construct {
       enableKeyRotation: true,
     });
     const mlBucketSecret = new aws_secretsmanager.Secret(this, 'MlOutputSecret-har', {
-      secretName: 'MlBucketArn-har',
+      secretName: 'MlBucketArn',
       secretStringValue: SecretValue.unsafePlainText(mlOutputBucket.bucketArn),
       encryptionKey: key,
     });
