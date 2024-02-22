@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This Github repository presents an MLOps infrastructure for implementing a Human Activity Recognition model, using the [STM32 Model Zoo](https://github.com/STMicroelectronics/stm32ai-modelzoo). Our infrastructure is designed to streamline the development process, making it faster and more efficient for you to build and deploy your model.<br>
+This Github repository presents an MLOps infrastructure for implementing a Human Activity Recognition model, using the [STM32 Model Zoo](https://github.com/STMicroelectronics/stm32ai-modelzoo). Our infrastructure is designed to streamline the development process, making it faster and more efficient for you to build and deploy your model.
 We use AWS SageMaker pipeline to train and generate the Human Activity Recognition model that will run on edge devices (STM32U5 series), with OTA updates using FreeRTOS. The devices are connected to IoT Core, and data is collected via MQTT. Additionally, we are implementing an IaC infrastructure using AWS CDK(Cloud Development Kit).
 
 ## Solution Architecture
@@ -68,7 +68,7 @@ npx cdk bootstrap aws://<ACCOUNT-NUMBER>/<REGION> --toolkit-stack-name CDKToolki
 
 To set up the device, follow these steps assuming you have a [B-U585I-IOT02A](https://www.st.com/en/evaluation-tools/b-u585i-iot02a.html) device.
 
-#### Pre-requisites
+#### Setup Pre-requisites
 
 - Ensure your AWS credentials are in place for your IoT account (The account that will host the IoT stack if different)
 - Download and Install [STM32CubeProgrammer](https://www.st.com/en/development-tools/stm32cubeprog.html) to be able to flash device with initial firmware
@@ -126,7 +126,7 @@ VaRDhiyj9BGkHbuAnGzM0gC+z6oYpxbkgE3qa6fHJoE99QTwrRh8XWwyCg==
 
 To complete the process, follow these steps:
 
-1. Connect to device using `screen /dev/tty.usb* 115200`, 
+1. Connect to device using `screen /dev/tty.usb* 115200`,
 1. Alternatively, you can connect to the device using screen <Serial_Port_Filename> 115200. You will need to find and replace the correct serial port file name (e.g. /dev/tty.usbmodem1203). The approach will be different for each platform, but you can try running ls /dev/tty.usb*.
 1. Run this command `pki import key ota_signer_pub`
 1. Paste the public key you copied earlier. You should see a confirmation that the key has been registered. If not, please make sure that you followed the correct formatting for the line breaks as mentioned earlier.
@@ -156,7 +156,7 @@ Once flashed if you are still connected to the device using the screen command i
 
 ## Iot
 
-Your device should now be publishing MQTT messages. To verify this, go to the AWS IoT console page and open the MQTT test client. In the filter, type <Device_Name>/har_inference_result and subscribe. You will be able to see the messages coming in from your device.
+Your device should now be publishing MQTT messages. To verify this, go to the AWS IoT console page and open the MQTT test client. In the filter, type `<Device_Name>/har_inference_result` and subscribe. You will be able to see the messages coming in from your device.
 
 ## Continous Deployment
 
