@@ -47,11 +47,6 @@
 			<locationURI>WORKSPACE_LOC/Drivers/BSP/B-U585I-IOT02A</locationURI>
 		</link>
 		<link>
-			<name>Drivers/hts221</name>
-			<type>2</type>
-			<locationURI>WORKSPACE_LOC/Drivers/BSP/Components/hts221</locationURI>
-		</link>
-		<link>
 			<name>Drivers/iis2mdc</name>
 			<type>2</type>
 			<locationURI>WORKSPACE_LOC/Drivers/BSP/Components/iis2mdc</locationURI>
@@ -60,21 +55,6 @@
 			<name>Drivers/ism330dhcx</name>
 			<type>2</type>
 			<locationURI>WORKSPACE_LOC/Drivers/BSP/Components/ism330dhcx</locationURI>
-		</link>
-		<link>
-			<name>Drivers/lps22hh</name>
-			<type>2</type>
-			<locationURI>WORKSPACE_LOC/Drivers/BSP/Components/lps22hh</locationURI>
-		</link>
-		<link>
-			<name>Drivers/lsm6dso</name>
-			<type>2</type>
-			<locationURI>WORKSPACE_LOC/Drivers/BSP/Components/lsm6dso</locationURI>
-		</link>
-		<link>
-			<name>Libraries/AudioPreProcessing</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
 			<name>Libraries/CMSIS</name>
@@ -170,16 +150,6 @@
 			<name>Libraries/tinycbor</name>
 			<type>2</type>
 			<locationURI>WORKSPACE_LOC/Middleware/tinycbor/src</locationURI>
-		</link>
-		<link>
-			<name>Libraries/AudioPreProcessing/Inc</name>
-			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Middleware/STM32_AI_AudioPreprocessing_Library/Inc</locationURI>
-		</link>
-		<link>
-			<name>Libraries/AudioPreProcessing/Src</name>
-			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Middleware/STM32_AI_AudioPreprocessing_Library/Src</locationURI>
 		</link>
 		<link>
 			<name>Libraries/CMSIS/core</name>

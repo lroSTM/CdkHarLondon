@@ -7,8 +7,9 @@ We use AWS SageMaker pipeline to train and generate the Human Activity Recogniti
 
 ## Solution Architecture
 
-To deploy our solution, we have designed the following target architecture. Our solution benefits from the integration with [STM32Cube.AI Developer Cloud](https://stm32ai-cs.st.com/home). It provides us with a comprehensive set of tools for benchmarking our model. This integration allows us to measure the memory footprint and inference time of our model, as well as generate the necessary files for the application code.<br>
-Our architecture is comprised of three interconnected stacks: ML, IoT, and Pipeline. 
+To deploy our solution, we have designed the following target architecture. Our solution benefits from the integration with [STM32Cube.AI Developer Cloud](https://stm32ai-cs.st.com/home). It provides us with a comprehensive set of tools for benchmarking our model. This integration allows us to measure the memory footprint and inference time of our model, as well as generate the necessary files for the application code.
+Our architecture is comprised of three interconnected stacks: ML, IoT, and Pipeline.
+
 1. ML Stack: Responsible for managing the MLOps process.
 2. IoT Stack : Responsible for edge deployment, OTA updates, and AWS IoT Core connectivity.
 3. Pipeline Stack: Responsible for orchestrating the CI/CD workflow, which automates the deployment of the ML and IoT stacks.
@@ -20,27 +21,24 @@ Our architecture is comprised of three interconnected stacks: ML, IoT, and Pipel
 We have built the project using CDK IaC, which allows for easy deployment to your AWS account with a single deploy command. This means that you can quickly and easily set up the infrastructure needed to implement the Human Activity Recognition model on your STM32U5 series target.
 
 ### Pre-requisites
-Before you get started, please ensure that you have completed the following steps:
 
-- AWS credentials are in place for Pipeline account (The account that will host the pipeline stack if different).
-- Install [Node.js](https://nodejs.org) and [Docker](https://www.docker.com/products/docker-desktop/) installed
+- Ensure your AWS credentials are in place for your Pipeline account (The account that will host the pipeline stack if different)
+- Ensure you have [Node.js](https://nodejs.org) and [Docker](https://www.docker.com/products/docker-desktop/) installed
 - Create an account in [STM32Cube.AI Developer Cloud](https://stm32ai-cs.st.com/home)
-- In your AWS account that will host the ML Stack (if different), navigate to the Secrets Manager console page:
-  1.  Create a new secret for your ST username
-      1.  Choose "Other" as the secret type.
-      1.  Select the "Plaintext" tab.
-      1.  Overwrite the content with your username.
-      1.  Give this secret the name STDEVCLOUD_USERNAME_SECRET. If you prefer a different name, make sure to update it in cdk.json.
-  1.  Create a new secret for your ST password:
-      1.  Repeat the previous steps, but use the name STDEVCLOUD_PASSWORD_SECRET.
+- In your AWS Account that will host the ML Stack (if different). Go to secrets manager console page:
+  1. Create a new secret for your ST username
+      1. Choose type other
+      1. Choose Plaintext tab
+      1. Overwrite content with you username
+      1. Give this secret the following name `STDEVCLOUD_USERNAME_SECRET` (if you require a different name, then ensure to update this new name in `cdk.json`)
+  1. Create a new secret for your ST password
+      1. Repeat the previous step but with the following secret name `STDEVCLOUD_PASSWORD_SECRET`
 
-  Once you have set up the secrets, you can run the following commands to continue the deployment process:
-  
-- Enable AWS IAM Identity Center and create a user for yourself in the account that will host the IoT Stack. You can do this by visiting the [IAM Identity Center](https://console.aws.amazon.com/singlesignon/identity/home)
 - Bootstrap your account (or accounts, if you have more than one) using the following command, replacing the placeholders with your account and region information:
-  ```
-  npx cdk bootstrap aws://<ACCOUNT-NUMBER>/<REGION> --toolkit-stack-name CDKToolkit-StMicro --qualifier stmicro
-  ```
+
+```sh
+npx cdk bootstrap aws://<ACCOUNT-NUMBER>/<REGION> --toolkit-stack-name CDKToolkit-StMicro --qualifier stmicro
+```
 
 ### deploy the CICD Pipeline
 
@@ -51,20 +49,24 @@ Before you get started, please ensure that you have completed the following step
    1. Follow the steps to create & verify the connection [here](https://docs.aws.amazon.com/dtconsole/latest/userguide/connections-create-github.html)
    1. Go to [cdk.json](./cdk.json) and paste your forked Repo name, branch & connection Arn in the config section.
 1. In the root folder, run the following commands
-   ```
+
+   ```sh
    npm install
    npm run cdk synth
    ```
+
 1. After editing cdk.json, a cdk.context.json file will be created. Remember to commit both files and push the commit to your forked repo.
 1. Once your repo has been updated with the edited cdk.json and the newly created cdk.context.json, run the following command to deploy the changes:
-   ```
+
+   ```sh
    npm run deploy
    ```
+
 1. For future changes, simply push new commits to your repo and the pipeline will redeploy the updated code.
 
 ### Setup the Device
 
-To set up the device, follow these steps assuming you have a [B-U585I-IOT02A](https://www.arrow.com/en/products/b-u585i-iot02a/stmicroelectronics) device.
+To set up the device, follow these steps assuming you have a [B-U585I-IOT02A](https://www.st.com/en/evaluation-tools/b-u585i-iot02a.html) device.
 
 #### Pre-requisites
 
@@ -80,19 +82,19 @@ To provision your board follow below steps:
 
 1. Navigate to the stm32 folder
 
-   ```
+   ```sh
    cd stm32
    ```
 
 1. Setup your environment
 
-   ```
+   ```sh
    sh tools/env_setup.sh
    ```
 
 1. Source your environment
 
-   ```
+   ```sh
    source .venv/bin/activate
    ```
 
@@ -102,18 +104,20 @@ To provision your board follow below steps:
    1. Go to the AWS Console and navigate to the CloudFormation page.
    2. Click on IoTStack and view the Output tab.
    3. Copy the ProvisionScript and replace the < > with a unique name for your device and AWS profile. You can keep all default values, but make sure to fill in the WIFI SSID and password details. The script should look like the following:
-   ```
+
+   ```sh
    python tools/provision.py --interactive --aws-region <Region> --aws-profile <Profile> --thing-name <Thing-Name>
    ```
 
 After successfully provisioning your device, follow these steps:
+
  1. Go back to the Output tab of the IoTStack in the CloudFormation page.
  2. Look for the public key value and copy it, including the public key labels before and after the code.
 
 **Warning**
 Note that the public key displayed in the Output tab may not be properly formatted. Before continuing, please ensure that you fix the format by adding the correct newlines using any text editor. Make sure that you don't miss the line break that splits the key itself into two lines.
 
-```
+```text
 -----BEGIN PUBLIC KEY-----
 MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAECSEgXkzVQkq2fQwPjIhKIkvJBVCl
 VaRDhiyj9BGkHbuAnGzM0gC+z6oYpxbkgE3qa6fHJoE99QTwrRh8XWwyCg==
@@ -152,7 +156,7 @@ Once flashed if you are still connected to the device using the screen command i
 
 ## Iot
 
-Your device should now be publishing MQTT messages. To verify this, go to the AWS IoT console page and open the MQTT test client. In the filter, type <Device_Name>/mic_sensor_data and subscribe. You will be able to see the messages coming in from your device.
+Your device should now be publishing MQTT messages. To verify this, go to the AWS IoT console page and open the MQTT test client. In the filter, type <Device_Name>/har_inference_result and subscribe. You will be able to see the messages coming in from your device.
 
 ## Continous Deployment
 
@@ -175,7 +179,7 @@ Watch changes propagating through the pipeline till it lands on the devices conn
 
 To remove all resources created by this stack run the following
 
-```
+```sh
 npm run destroy
 ```
 

@@ -175,7 +175,6 @@ extern void net_main( void * pvParameters );
 extern void vMQTTAgentTask( void * );
 extern void vEnvironmentSensorPublishTask( void * );
 extern void vMotionSensorPublishTask( void * );
-//extern void vMotionSensorsPublish( void* );
 extern void vShadowDeviceTask( void * );
 extern void vOTAUpdateTask( void * pvParam );
 extern void vDefenderAgentTask( void * );
@@ -231,18 +230,6 @@ void vInitTask( void * pvArgs )
 
     xResult = xTaskCreate( vMotionSensorPublishTask, "MotionS", 2048, NULL, 6, NULL );
     configASSERT( xResult == pdTRUE );
-
-//    xResult = xTaskCreate( vMotionSensorsPublish, "MotionS", 2048, NULL, 5, NULL );
-//    configASSERT( xResult == pdTRUE );
-
-//    xResult = xTaskCreate( vEnvironmentSensorPublishTask, "EnvSense", 1024, NULL, 6, NULL );
-//    configASSERT( xResult == pdTRUE );
-//
-//    xResult = xTaskCreate( vShadowDeviceTask, "ShadowDevice", 1024, NULL, 5, NULL );
-//    configASSERT( xResult == pdTRUE );
-//
-//    xResult = xTaskCreate( vDefenderAgentTask, "AWSDefender", 2048, NULL, 5, NULL );
-//    configASSERT( xResult == pdTRUE );
 
     while( 1 )
     {

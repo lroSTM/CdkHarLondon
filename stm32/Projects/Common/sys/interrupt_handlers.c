@@ -28,7 +28,6 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "hw_defs.h"
-#include "b_u585i_iot02a_audio.h"
 #include "b_u585i_iot02a_motion_sensors.h"
 
 static GPIOInterruptCallback_t volatile xGpioCallbacks[ 16 ] = { NULL };
@@ -157,20 +156,20 @@ void EXTI11_IRQHandler( void )
   * @param  None
   * @retval None
   */
-void GPDMA1_Channel0_IRQHandler(void)
-{
-  BSP_AUDIO_IN_IRQHandler(0, AUDIO_IN_DEVICE_DIGITAL_MIC2);
-}
+//void GPDMA1_Channel0_IRQHandler(void)
+//{
+//  BSP_AUDIO_IN_IRQHandler(0, AUDIO_IN_DEVICE_DIGITAL_MIC2);
+//}
 
 /**
   * @brief  This function handles GPDMA_Channel6 interrupt request.
   * @param  None
   * @retval None
   */
-void GPDMA1_Channel6_IRQHandler(void)
-{
-  BSP_AUDIO_IN_IRQHandler(0, AUDIO_IN_DEVICE_DIGITAL_MIC1);
-}
+//void GPDMA1_Channel6_IRQHandler(void)
+//{
+//  BSP_AUDIO_IN_IRQHandler(0, AUDIO_IN_DEVICE_DIGITAL_MIC1);
+//}
 
 void GPDMA1_Channel4_IRQHandler( void )
 {

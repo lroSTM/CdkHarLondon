@@ -27,7 +27,7 @@
 #include "logging_levels.h"
 /* define LOG_LEVEL here if you want to modify the logging level from the default */
 
-#define LOG_LEVEL LOG_DEBUG
+#define LOG_LEVEL LOG_INFO
 
 #include "logging.h"
 
@@ -61,20 +61,16 @@ extern UBaseType_t uxRand(void);
 
 #define MQTT_PUBLISH_MAX_LEN (200)
 #define MQTT_PUBLISH_TIME_BETWEEN_MS (5000)
-#define MQTT_PUBLISH_TOPIC "mot_sensor_data"
+//#define MQTT_PUBLISH_TOPIC "har_inference_result"
 #define MQTT_PUBLICH_TOPIC_STR_LEN (256)
 #define MQTT_PUBLISH_BLOCK_TIME_MS (200)
 #define MQTT_PUBLISH_NOTIFICATION_WAIT_MS (1000)
-#define MQTT_NOTIFY_IDX                      ( 1 )
-
 #define MQTT_NOTIFY_IDX (1)
 #define MQTT_PUBLISH_QOS (MQTTQoS0)
-
 
 #define MOT_EVT (1 << 0)
 
 #define ISM330DHCX_TAG_ACC                   (0x02)
-#define CTRL_X_CUBE_AI_NB                    (24U)
 
 /**
  * @brief Defines the structure to use as the command callback context in this
@@ -82,9 +78,9 @@ extern UBaseType_t uxRand(void);
  */
 struct MQTTAgentCommandContext
 {
-    MQTTStatus_t xReturnStatus;
-    TaskHandle_t xTaskToNotify;
-    uint32_t ulNotificationValue;
+	MQTTStatus_t xReturnStatus;
+	TaskHandle_t xTaskToNotify;
+	uint32_t ulNotificationValue;
 };
 
 /* Private variables ---------------------------------------------------------*/
@@ -105,118 +101,118 @@ static TaskHandle_t xMotTask;
 
 /*-----------------------------------------------------------*/
 static void prvPublishCommandCallback( MQTTAgentCommandContext_t * pxCommandContext,
-                                       MQTTAgentReturnInfo_t * pxReturnInfo )
+		MQTTAgentReturnInfo_t * pxReturnInfo )
 {
-    TaskHandle_t xTaskHandle = ( TaskHandle_t ) pxCommandContext;
+	TaskHandle_t xTaskHandle = ( TaskHandle_t ) pxCommandContext;
 
-    configASSERT( pxReturnInfo != NULL );
+	configASSERT( pxReturnInfo != NULL );
 
-    uint32_t ulNotifyValue = pxReturnInfo->returnCode;
+	uint32_t ulNotifyValue = pxReturnInfo->returnCode;
 
-    if( xTaskHandle != NULL )
-    {
-        /* Send the context's ulNotificationValue as the notification value so
-         * the receiving task can check the value it set in the context matches
-         * the value it receives in the notification. */
-        ( void ) xTaskNotifyIndexed( xTaskHandle,
-                                     MQTT_NOTIFY_IDX,
-                                     ulNotifyValue,
-                                     eSetValueWithOverwrite );
-    }
+	if( xTaskHandle != NULL )
+	{
+		/* Send the context's ulNotificationValue as the notification value so
+		 * the receiving task can check the value it set in the context matches
+		 * the value it receives in the notification. */
+		( void ) xTaskNotifyIndexed( xTaskHandle,
+				MQTT_NOTIFY_IDX,
+				ulNotifyValue,
+				eSetValueWithOverwrite );
+	}
 }
 
 /*-----------------------------------------------------------*/
 
 static BaseType_t prvPublishAndWaitForAck( MQTTAgentHandle_t xAgentHandle,
-                                           const char * pcTopic,
-                                           const void * pvPublishData,
-                                           size_t xPublishDataLen )
+		const char * pcTopic,
+		const void * pvPublishData,
+		size_t xPublishDataLen )
 {
-    MQTTStatus_t xStatus;
-    size_t uxTopicLen = 0;
+	MQTTStatus_t xStatus;
+	size_t uxTopicLen = 0;
 
-    configASSERT( pcTopic != NULL );
-    configASSERT( pvPublishData != NULL );
-    configASSERT( xPublishDataLen > 0 );
+	configASSERT( pcTopic != NULL );
+	configASSERT( pvPublishData != NULL );
+	configASSERT( xPublishDataLen > 0 );
 
-    uxTopicLen = strnlen( pcTopic, UINT16_MAX );
+	uxTopicLen = strnlen( pcTopic, UINT16_MAX );
 
-    MQTTPublishInfo_t xPublishInfo =
-    {
-        .qos             = MQTT_PUBLISH_QOS,
-        .retain          = 0,
-        .dup             = 0,
-        .pTopicName      = pcTopic,
-        .topicNameLength = ( uint16_t ) uxTopicLen,
-        .pPayload        = pvPublishData,
-        .payloadLength   = xPublishDataLen
-    };
+	MQTTPublishInfo_t xPublishInfo =
+	{
+			.qos             = MQTT_PUBLISH_QOS,
+			.retain          = 0,
+			.dup             = 0,
+			.pTopicName      = pcTopic,
+			.topicNameLength = ( uint16_t ) uxTopicLen,
+			.pPayload        = pvPublishData,
+			.payloadLength   = xPublishDataLen
+	};
 
-    MQTTAgentCommandInfo_t xCommandParams =
-    {
-        .blockTimeMs                 = MQTT_PUBLISH_BLOCK_TIME_MS,
-        .cmdCompleteCallback         = prvPublishCommandCallback,
-        .pCmdCompleteCallbackContext = ( void * ) xTaskGetCurrentTaskHandle(),
-    };
+	MQTTAgentCommandInfo_t xCommandParams =
+	{
+			.blockTimeMs                 = MQTT_PUBLISH_BLOCK_TIME_MS,
+			.cmdCompleteCallback         = prvPublishCommandCallback,
+			.pCmdCompleteCallbackContext = ( void * ) xTaskGetCurrentTaskHandle(),
+	};
 
-    if( xPublishInfo.qos > MQTTQoS0 )
-    {
-        xCommandParams.pCmdCompleteCallbackContext = ( void * ) xTaskGetCurrentTaskHandle();
-    }
+	if( xPublishInfo.qos > MQTTQoS0 )
+	{
+		xCommandParams.pCmdCompleteCallbackContext = ( void * ) xTaskGetCurrentTaskHandle();
+	}
 
-    /* Clear the notification index */
-    xTaskNotifyStateClearIndexed( NULL, MQTT_NOTIFY_IDX );
+	/* Clear the notification index */
+	xTaskNotifyStateClearIndexed( NULL, MQTT_NOTIFY_IDX );
 
 
-    xStatus = MQTTAgent_Publish( xAgentHandle,
-                                 &xPublishInfo,
-                                 &xCommandParams );
+	xStatus = MQTTAgent_Publish( xAgentHandle,
+			&xPublishInfo,
+			&xCommandParams );
 
-    if( xStatus == MQTTSuccess )
-    {
-        uint32_t ulNotifyValue = 0;
-        BaseType_t xResult = pdFALSE;
+	if( xStatus == MQTTSuccess )
+	{
+		uint32_t ulNotifyValue = 0;
+		BaseType_t xResult = pdFALSE;
 
-        xResult = xTaskNotifyWaitIndexed( MQTT_NOTIFY_IDX,
-                                          0xFFFFFFFF,
-                                          0xFFFFFFFF,
-                                          &ulNotifyValue,
-                                          pdMS_TO_TICKS( MQTT_PUBLISH_NOTIFICATION_WAIT_MS ) );
+		xResult = xTaskNotifyWaitIndexed( MQTT_NOTIFY_IDX,
+				0xFFFFFFFF,
+				0xFFFFFFFF,
+				&ulNotifyValue,
+				pdMS_TO_TICKS( MQTT_PUBLISH_NOTIFICATION_WAIT_MS ) );
 
-        if( xResult )
-        {
-            xStatus = ( MQTTStatus_t ) ulNotifyValue;
+		if( xResult )
+		{
+			xStatus = ( MQTTStatus_t ) ulNotifyValue;
 
-            if( xStatus != MQTTSuccess )
-            {
-                LogError( "MQTT Agent returned error code: %d during publish operation.",
-                          xStatus );
-                xResult = pdFALSE;
-            }
-        }
-        else
-        {
-            LogError( "Timed out while waiting for publish ACK or Sent event. xTimeout = %d",
-                      pdMS_TO_TICKS( MQTT_PUBLISH_NOTIFICATION_WAIT_MS ) );
-            xResult = pdFALSE;
-        }
-    }
-    else
-    {
-        LogError( "MQTTAgent_Publish returned error code: %d.", xStatus );
-    }
+			if( xStatus != MQTTSuccess )
+			{
+				LogError( "MQTT Agent returned error code: %d during publish operation.",
+						xStatus );
+				xResult = pdFALSE;
+			}
+		}
+		else
+		{
+			LogError( "Timed out while waiting for publish ACK or Sent event. xTimeout = %d",
+					pdMS_TO_TICKS( MQTT_PUBLISH_NOTIFICATION_WAIT_MS ) );
+			xResult = pdFALSE;
+		}
+	}
+	else
+	{
+		LogError( "MQTTAgent_Publish returned error code: %d.", xStatus );
+	}
 
-    return( xStatus == MQTTSuccess );
+	return( xStatus == MQTTSuccess );
 }
 
 static BaseType_t xIsMqttConnected(void)
 {
 	/* Wait for MQTT to be connected */
 	EventBits_t uxEvents = xEventGroupWaitBits(xSystemEvents,
-											   EVT_MASK_MQTT_CONNECTED,
-											   pdFALSE,
-											   pdTRUE,
-											   0);
+			EVT_MASK_MQTT_CONNECTED,
+			pdFALSE,
+			pdTRUE,
+			0);
 
 	return ((uxEvents & EVT_MASK_MQTT_CONNECTED) == EVT_MASK_MQTT_CONNECTED);
 }
@@ -238,15 +234,15 @@ static void CRC_Init(void)
 	}
 }
 
-static BaseType_t xInitSensors(void)
+static BaseType_t xInitSensors(int fifo_level)
 {
 	int32_t lBspError = BSP_ERROR_NONE;
 
-    lBspError  = BSP_MOTION_SENSOR_Init( 0,MOTION_ACCELERO );
-    lBspError |= BSP_MOTION_SENSOR_SetOutputDataRate( 0, MOTION_ACCELERO, CTRL_X_CUBE_AI_SENSOR_ODR );
-    lBspError |= BSP_MOTION_SENSOR_SetFullScale(0, MOTION_ACCELERO, CTRL_X_CUBE_AI_SENSOR_FS);
-    lBspError |= BSP_MOTION_SENSOR_Fifo( 0,MOTION_ACCELERO,CTRL_X_CUBE_AI_NB);
-    lBspError |= BSP_MOTION_SENSOR_Enable(0, MOTION_ACCELERO);
+	lBspError  = BSP_MOTION_SENSOR_Init( 0,MOTION_ACCELERO );
+	lBspError |= BSP_MOTION_SENSOR_SetOutputDataRate( 0, MOTION_ACCELERO, CTRL_X_CUBE_AI_SENSOR_ODR );
+	lBspError |= BSP_MOTION_SENSOR_SetFullScale(0, MOTION_ACCELERO, CTRL_X_CUBE_AI_SENSOR_FS);
+	lBspError |= BSP_MOTION_SENSOR_Fifo( 0,MOTION_ACCELERO,fifo_level);
+	lBspError |= BSP_MOTION_SENSOR_Enable(0, MOTION_ACCELERO);
 
 	return (lBspError == BSP_ERROR_NONE ? pdTRUE : pdFALSE);
 }
@@ -277,7 +273,15 @@ void vMotionSensorPublishTask(void *pvParameters)
 	 */
 	xMotTask = xTaskGetCurrentTaskHandle();
 
-	xResult = xInitSensors();
+	/**
+	 * get the AI model
+	 */
+	AiDPULoadModel(&xAIProcCtx, "network");
+
+	/**
+	 * initialise sensors
+	 */
+	xResult = xInitSensors(xAIProcCtx.In_Height);
 
 	if (xResult != pdTRUE)
 	{
@@ -286,31 +290,26 @@ void vMotionSensorPublishTask(void *pvParameters)
 	}
 
 
-	/**
-	 * get the AI model
-	 */
-	AiDPULoadModel(&xAIProcCtx, "network");
+	pcDeviceId = KVStore_getStringHeap( CS_CORE_THING_NAME, NULL );
 
-	 pcDeviceId = KVStore_getStringHeap( CS_CORE_THING_NAME, NULL );
+	if( pcDeviceId == NULL )
+	{
+		xExitFlag = pdTRUE;
+	}
+	else
+	{
+		lTopicLen = snprintf( pcTopicString, ( size_t ) MQTT_PUBLICH_TOPIC_STR_LEN, "%s/har_inference_result", pcDeviceId );
+	}
 
-	    if( pcDeviceId == NULL )
-	    {
-	        xExitFlag = pdTRUE;
-	    }
-	    else
-	    {
-	        lTopicLen = snprintf( pcTopicString, ( size_t ) MQTT_PUBLICH_TOPIC_STR_LEN, "%s/motion_sensor_data", pcDeviceId );
-	    }
+	if( ( lTopicLen <= 0 ) || ( lTopicLen > MQTT_PUBLICH_TOPIC_STR_LEN ) )
+	{
+		LogError( "Error while constructing topic string." );
+		xExitFlag = pdTRUE;
+	}
 
-	    if( ( lTopicLen <= 0 ) || ( lTopicLen > MQTT_PUBLICH_TOPIC_STR_LEN ) )
-	    {
-	        LogError( "Error while constructing topic string." );
-	        xExitFlag = pdTRUE;
-	    }
+	vSleepUntilMQTTAgentReady();
 
-	    vSleepUntilMQTTAgentReady();
-
-	    xAgentHandle = xGetMqttAgentHandle();
+	xAgentHandle = xGetMqttAgentHandle();
 
 	while (xExitFlag == pdFALSE)
 	{
@@ -319,123 +318,76 @@ void vMotionSensorPublishTask(void *pvParameters)
 
 		if (xTaskNotifyWait(0, 0xFFFFFFFF, &ulNotifiedValue, portMAX_DELAY) == pdTRUE)
 		{
-			/**
-			 * AI processing
-			 */
 			AiProcess(&xAIProcCtx, pfAIOutput);
 		}
-		size_t bytesWritten = 0;
 
-			/**
-			 * if not silence frame
-			 */
-			float max_out = pfAIOutput[0];
-			uint32_t max_idx = 0;
-			for (uint32_t i = 1; i < CTRL_X_CUBE_AI_MODE_CLASS_NUMBER; i++)
+		float max_out = pfAIOutput[0];
+		uint32_t max_idx = 0;
+		for (uint32_t i = 1; i < CTRL_X_CUBE_AI_MODE_CLASS_NUMBER; i++)
+		{
+			if (pfAIOutput[i] > max_out)
 			{
-				if (pfAIOutput[i] > max_out)
-				{
-					max_idx = i;
-					max_out = pfAIOutput[i];
-				}
+				max_idx = i;
+				max_out = pfAIOutput[i];
 			}
-			/* Write to */
-			bytesWritten = snprintf(payloadBuf, (size_t)MQTT_PUBLISH_MAX_LEN,
-									"{\"class\":\"%s\"}", sAiClassLabels[max_idx]);
+		}
+		size_t bytesWritten = snprintf(payloadBuf, (size_t)MQTT_PUBLISH_MAX_LEN,
+				"{\"class\":\"%s\"}", sAiClassLabels[max_idx]);
 
-			//LogInfo("%s", payloadBuf);
-			if (xIsMqttConnected() == pdTRUE)
+		if (xIsMqttConnected() == pdTRUE)
+		{
+			if (bytesWritten < MQTT_PUBLISH_MAX_LEN)
 			{
-				if (bytesWritten < MQTT_PUBLISH_MAX_LEN)
-				{
-					xResult = prvPublishAndWaitForAck(xAgentHandle,
-													  pcTopicString,
-													  payloadBuf,
-													  ( size_t ) bytesWritten);
-				}
-				else if (bytesWritten > 0)
-				{
-					LogError("Not enough buffer space.");
-				}
-				else
-				{
-					LogError("MQTT Publish call failed.");
-				}
-
+				xResult = prvPublishAndWaitForAck(xAgentHandle,
+						pcTopicString,
+						payloadBuf,
+						( size_t ) bytesWritten);
 				if (xResult == pdTRUE)
 				{
-					LogDebug(payloadBuf);
+					LogInfo(payloadBuf);
 				}
+			}
+			else if (bytesWritten > 0)
+			{
+				LogError("Not enough buffer space.");
+			}
+			else
+			{
+				LogError("MQTT Publish call failed.");
+			}
 		}
 	}
-
 	AiDPUReleaseModel(&xAIProcCtx);
 	vPortFree( pcDeviceId );
-
 }
-
 
 void ISM330DHCX_EXTI_Callback(uint16_t Pin)
 {
 
-	   int ret;
-	   ret = ISM330DHCX_Get_Fifo(0, xAIProcCtx.In_Height, xAIProcCtx.p_buffer);
-
-//	   int8_t* p_in;
-//	   int16_t* p_out;
-//	   p_in = xAIProcCtx.p_buffer;
-//	   p_out = (int16_t*)p_in;
-//	   int16_t x,y,z;
-//
-//	   for (int i = 0; i<xAIProcCtx.In_Height; i++){
-//	   	   if(*p_in >> 3 == ISM330DHCX_TAG_ACC){
-//	   		   //verifie le TAG si ACC read data
-//	   		   p_in++; //partie base de data
-//	   		   x=*(int16_t*)p_in;
-//	   		   p_in+=2;
-//	   		   y=*(int16_t*)p_in;
-//	   		   p_in+=2;
-//	   		   z=*(int16_t*)p_in;
-//	   		   p_in+=2;
-//
-//	   		   *p_out=x;
-//	   		   p_out++;
-//	   		   *p_out=y;
-//	   		   p_out++;
-//	   		   *p_out=z;
-//	   		   p_out++;
-//
-//	   	   }
-//	      }
-
-	   int8_t* p_in = xAIProcCtx.p_buffer;
-	   int16_t* p_out = (int16_t*)p_in;
-
-	   for (int i = 0; i < xAIProcCtx.In_Height; i++) {
-		   if ((*p_in >> 3) == ISM330DHCX_TAG_ACC) {
-			   // Verify the tag if ACC read data
-			   p_in++; // Partie base de data
-			   int16_t x = *(int16_t*)p_in;
-			   p_in += 2;
-			   int16_t y = *(int16_t*)p_in;
-			   p_in += 2;
-			   int16_t z = *(int16_t*)p_in;
-			   p_in += 2;
-
-			   *p_out++ = x;
-			   *p_out++ = y;
-			   *p_out++ = z;
-		   } else {
-			   p_in += 7; // Skip non-ACC data
-		   }
-   }
+	int ret;
+	ret = ISM330DHCX_Get_Fifo(0, xAIProcCtx.In_Height, xAIProcCtx.p_buffer);
+	int8_t* p_in = xAIProcCtx.p_buffer;
+	int16_t* p_out = (int16_t*)p_in;
+	for (int i = 0; i < xAIProcCtx.In_Height; i++) {
+		if ((*p_in >> 3) == ISM330DHCX_TAG_ACC) {
+			p_in++; // skip tag
+			*p_out++ = *(int16_t*)p_in;
+			p_in += 2;
+			*p_out++ = *(int16_t*)p_in;
+			p_in += 2;
+			*p_out++ = *(int16_t*)p_in;
+			p_in += 2;
+		} else {
+			p_in += 7; // Skip non-ACC data
+		}
+	}
 
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 	BaseType_t rslt = pdFALSE;
 	rslt = xTaskNotifyFromISR(xMotTask,
-							  MOT_EVT,
-							  eSetBits,
-							  &xHigherPriorityTaskWoken);
+			MOT_EVT,
+			eSetBits,
+			&xHigherPriorityTaskWoken);
 	configASSERT(rslt == pdTRUE);
 	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }

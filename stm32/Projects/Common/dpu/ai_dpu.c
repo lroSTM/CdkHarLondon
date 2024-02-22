@@ -80,12 +80,10 @@ static BaseType_t AiDPUCheckModel(AIProcCtx_t * pxCtx)
       res = pdFALSE;
     }
   }
-
   if (res == pdFALSE)
   {
      LogWarn("AI_DPU: Model check failed \r\n");
   }
-
   return res;
 }
 
@@ -139,13 +137,13 @@ BaseType_t  AiDPULoadModel(AIProcCtx_t * pxCtx, const char *name)
   /*Allocate memory for input buffer*/
   pxCtx->In_Height= AI_BUFFER_SHAPE_ELEM(&pxCtx->net_exec_ctx->report.inputs[0], AI_SHAPE_HEIGHT);
   pxCtx->In_Width=AI_BUFFER_SHAPE_ELEM(&pxCtx->net_exec_ctx->report.inputs[0], AI_SHAPE_WIDTH);
-  pxCtx->p_buffer=(int16_t* ) malloc ((size_t) pxCtx->In_Height * 7);
+  pxCtx->p_buffer=(int8_t* ) pvPortMalloc((size_t) (pxCtx->In_Height * 7 * sizeof(int8_t)));
 
   if (pxCtx->p_buffer==NULL){
 	  LogError("Malloc failed\n");
 	  while(1);
   }
-  pxCtx->in_preproc=(float* ) malloc ((size_t) pxCtx->In_Height * pxCtx->In_Width);
+  pxCtx->in_preproc=(float* ) pvPortMalloc((size_t) (pxCtx->In_Height * pxCtx->In_Width * sizeof(float)));
   if (pxCtx->in_preproc==NULL){
  	  LogError("Malloc failed\n");
  	  while(1);
@@ -157,8 +155,8 @@ BaseType_t AiDPUReleaseModel(AIProcCtx_t * pxCtx)
 {
   assert_param(pxCtx != NULL);
   if (pxCtx->net_exec_ctx->handle != AI_HANDLE_NULL) {
-	  free(pxCtx->p_buffer);
-	  free(pxCtx->in_preproc);
+	  vPortFree(pxCtx->p_buffer);
+	  vPortFree(pxCtx->in_preproc);
     if (ai_network_destroy(pxCtx->net_exec_ctx->handle) != AI_HANDLE_NULL ){
       ai_error err;
       err = ai_network_get_error(pxCtx->net_exec_ctx->handle);
@@ -171,7 +169,7 @@ BaseType_t AiDPUReleaseModel(AIProcCtx_t * pxCtx)
 
 BaseType_t AiDPUProcess(AIProcCtx_t *pxCtx, int8_t *p_spectro , float *pf_out)
 {
-  assert_param(_this != NULL);
+  assert_param(pxCtx != NULL);
 
   ai_i32 batch;
   ai_u16 n_outputs;
@@ -206,15 +204,15 @@ BaseType_t AiDPUProcess(AIProcCtx_t *pxCtx, int8_t *p_spectro , float *pf_out)
 static void Preproc_3D_ACC(float *p_in,float *p_out,AIProcCtx_t *pxCtx)
 {
   int nb_3_axis_sample = pxCtx->In_Height;
+  float scale = CTRL_X_CUBE_AI_SENSOR_FS * AI_LSB_16B * AI_DPU_G_TO_MS_2 ;
 
 #if CTRL_X_CUBE_AI_PREPROC==CTRL_AI_GRAV_ROT_SUPPR ||CTRL_X_CUBE_AI_PREPROC==CTRL_AI_GRAV_ROT
+  GRAV_input_t gravIn;
+  GRAV_input_t gravOut;
   for (int i=0 ; i < nb_3_axis_sample ; i++)  {
-    pxCtx->scale = CTRL_X_CUBE_AI_SENSOR_FS * AI_LSB_16B * AI_DPU_G_TO_MS_2 ;
-    GRAV_input_t gravIn;
-    GRAV_input_t gravOut;
-    gravIn.AccX = *p_in++ * pxCtx->scale;
-    gravIn.AccY = *p_in++ * pxCtx->scale;
-    gravIn.AccZ = *p_in++ * pxCtx->scale;
+    gravIn.AccX = *p_in++ * scale;
+    gravIn.AccY = *p_in++ * scale;
+    gravIn.AccZ = *p_in++ * scale;
   #if CTRL_X_CUBE_AI_PREPROC==CTRL_AI_GRAV_ROT_SUPPR
     gravOut = gravity_suppress_rotate (&gravIn);
   #elif CTRL_X_CUBE_AI_PREPROC==CTRL_AI_GRAV_ROT
@@ -226,7 +224,7 @@ static void Preproc_3D_ACC(float *p_in,float *p_out,AIProcCtx_t *pxCtx)
   }
 #elif CTRL_X_CUBE_AI_PREPROC==CTRL_AI_SCALING
   for (int i=0 ; i < nb_3_axis_sample*3 ; i++){
-    *p_out++ = *p_in++ * p_obj->scale;
+    *p_out++ = *p_in++ * scale;
   }
 #else /* bypass */
   for (int i=0 ; i < nb_3_axis_sample*3 ; i++){
@@ -235,12 +233,9 @@ static void Preproc_3D_ACC(float *p_in,float *p_out,AIProcCtx_t *pxCtx)
 #endif
 }
 
-
-
-
 BaseType_t AiProcess(AIProcCtx_t *pxCtx, float* p_out)
 {
-  assert_param(_this != NULL);
+  assert_param(pxCtx != NULL);
 
   ai_i32 batch;
   ai_u16 n_outputs;
@@ -269,13 +264,7 @@ BaseType_t AiProcess(AIProcCtx_t *pxCtx, float* p_out)
 	  pxCtx->in_preproc[i] = (float)tmp;
   }
 
-//  int16_t* tmp = (int16_t*) pxCtx->p_buffer;
-//  for (int i = 0; i < (pxCtx->In_Height * pxCtx->In_Width); i++) {
-//      pxCtx->in_preproc[i] = (float) tmp[i];
-//  }
-
   Preproc_3D_ACC(pxCtx->in_preproc,ai_input[0].data,pxCtx);
-
 
   /* call Ai library. */
   batch = ai_network_run(pxCtx->net_exec_ctx->handle, ai_input, ai_output);

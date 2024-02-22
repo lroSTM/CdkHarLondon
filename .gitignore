@@ -21,3 +21,4 @@ stm32/Projects/b_u585i_iot02a_ntz/Debug
 stm32/Middleware/STM32_AI_Library/*
 
 stm32/Projects/Common/dpu/user_mel_tables.*
+.vscode
