@@ -1,3 +1,9 @@
+---
+pagetitle: Release Notes for Sensing and Audio Getting Start Package
+lang: en
+header-includes: <link rel="icon" type="image/x-icon" href="_htmresc/favicon.png" />
+---
+
 # __Sensing and Audio Getting Start Package__
 
 This project provides an STM32 Microcontroler embedded real time environement to execute [X-CUBE-AI](https://www.st.com/en/embedded-software/x-cube-ai.html) generated model targetting sensing and audio applications
