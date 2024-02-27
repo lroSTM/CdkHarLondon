@@ -37,7 +37,7 @@ We have built the project using CDK IaC, which allows for easy deployment to you
 - Bootstrap your account (or accounts, if you have more than one) using the following command, replacing the placeholders with your account and region information:
 
 ```sh
-npx cdk bootstrap aws://<ACCOUNT-NUMBER>/<REGION> --toolkit-stack-name CDKToolkit-StMicro --qualifier stmicro
+npx cdk bootstrap aws://<ACCOUNT-NUMBER>/<REGION> --toolkit-stack-name CDKToolkit-StMicro --qualifier stmicrohar
 ```
 
 ### deploy the CICD Pipeline
