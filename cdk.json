@@ -26,7 +26,7 @@
       "repo": {
         "name": "lroSTM/CdkHarLondon",
         "branch": "val1",
-        "connectionArn": "arn:aws:codestar-connections:eu-west-3:958196000588:connection/376045c2-d789-4f25-80b6-fda0a307d87a"
+        "connectionArn": "arn:aws:codestar-connections:eu-west-3:958196000588:connection/cb122454-6306-4e34-aa45-b449357b2cf0"
       }
     }, 
     "@aws-cdk/core:bootstrapQualifier": "stmicrohar",
