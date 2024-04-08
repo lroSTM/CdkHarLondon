@@ -379,10 +379,11 @@ void ISM330DHCX_EXTI_Callback(uint16_t Pin)
     }
   }
 
-  xTaskNotifyFromISR(xMotTask,
+  rslt = xTaskNotifyFromISR(xMotTask,
       MOT_EVT,
       eSetBits,
       &xHigherPriorityTaskWoken);
+
   configASSERT(rslt == pdTRUE);
   portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
