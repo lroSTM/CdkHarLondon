@@ -6,7 +6,7 @@ general:
 tf_train_parameters:
   batch_size: 64
   dropout: 0.5
-  training_epochs: 900
+  training_epochs: 100
   optimizer: adam
   initial_learning: 0.001
   learning_rate_scheduler: ReduceLROnPlateau
